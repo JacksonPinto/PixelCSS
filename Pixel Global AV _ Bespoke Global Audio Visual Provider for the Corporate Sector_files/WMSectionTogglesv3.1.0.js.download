@@ -1,0 +1,68 @@
+<!-- Version 3.1.0 | Tabs For Squarespace Sections | Copyright Will Myers -->
+function initWMSectionToggles(){
+  if ($('.wm-toggle-sections').length >= 1) {
+    $('head').prepend('<link rel="stylesheet" type="text/css"  href="https://assets.codepen.io/3198845/WMToggleSection3.1.0.css" />');
+    $('.wm-toggle-sections').each(function(i){
+      $(this).addClass('wm-plugin-loading');
+      let index = i + 1;
+      let toggleCount = $(this).find('.wm-toggle-btn').length;
+      let toggleButtons = $(this).find('.wm-toggle-btn');
+      let resizeEvent = new Event('resize');
+      let parentDiv;
+      let backgroundColor;
+
+      /*Are we in SS 7.0 or 7.1?*/
+      if ($('body.sqs-seven-one').length === 1){
+        /*7.1*/
+        parentDiv = $(this).closest('section.page-section');
+        backgroundColor = $(parentDiv).find('.section-background').css('background-color');
+        /*Match Section Background Color*/
+        $(this).css({'background-color': backgroundColor});
+      } else if ($('html > #yui3-css-stamp').length === 1){
+        /*7.0*/
+        parentDiv = $(this).closest('section.Index-page');
+      }
+
+      $(this).attr('data-toggle-group', index);
+      $($(this)).insertAfter(parentDiv);
+
+      /*Add Classes to Sections*/
+      let j;
+      for (j = 0; j < toggleCount; j++) {
+        let tabNum = j + 1;
+        $(parentDiv)
+          .nextAll('section:not(.wm-toggle-section):first')
+          .addClass('wm-toggle-section')
+          .attr('data-toggle-section', tabNum)
+          .attr('data-toggle-group', index);
+      }
+
+      $(toggleButtons).each(function(n){
+        let tabBtnNum = n + 1;
+        $(this).attr('data-toggle-section', tabBtnNum);
+
+        /*Click*/
+        $(this).click(function(){
+          $(toggleButtons).removeClass('active-toggle-btn');
+          $(this).addClass('active-toggle-btn');
+          $('[data-toggle-group="' + index + '"]').removeClass('active-toggle');
+          $('[data-toggle-group="' + index + '"][data-toggle-section="' + tabBtnNum + '"]').addClass('active-toggle');
+          window.dispatchEvent(resizeEvent);
+        });
+      });
+
+      /*Init*/
+      $(this).find('.wm-toggle-btn:first').click();
+      $(this).removeClass('wm-plugin-loading');
+    });
+  }
+}
+if ($('html > div#yui3-css-stamp').length){
+  window.Squarespace.onInitialize(Y, function(){
+    initWMSectionToggles();
+  }); 
+} else {
+  $(function(){
+    initWMSectionToggles();
+  });
+}
